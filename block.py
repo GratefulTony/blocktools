@@ -1,5 +1,7 @@
 from blocktools import *
-
+from pybloom import *
+bloom = BloomFilter(capacity=1000000000, error_rate=0.05)
+count = 0
 class BlockHeader:
 	def __init__(self, blockchain):
 		self.version = uint4(blockchain)
@@ -128,7 +130,12 @@ class txOutput:
 		self.value = uint8(blockchain)
 		self.scriptLen = varint(blockchain)
 		self.pubkey = blockchain.read(self.scriptLen)
-
+                if not self.pubkey in bloom:
+                    bloom.add(pubkey)
+                    count = count + 1
+                    if count % 100000 == 0:
+                    	print str(count) + 'pubkeys seen'
+                    	
 	def toString(self):
 		print "Value:\t\t %d" % self.value
 		print "Script Len:\t %d" % self.scriptLen
